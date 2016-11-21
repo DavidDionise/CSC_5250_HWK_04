@@ -88,8 +88,8 @@ void registerSignal() {
 	}
 	if(!isEmpty(&register_queue)) {
 		(register_queue.head)->accepting_payment = 1;
-		(register_queue.head)->waiting = 0
-		;
+		(register_queue.head)->waiting = 0;
+		
 		pop(&register_queue);
 	}
 
