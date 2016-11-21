@@ -25,7 +25,7 @@ void chairSignal() {
 void sofaWait(customer* customer) {
 	if(SOFA_SEM < 4) {
 		SOFA_SEM++;
-		push(customer, &sofa_queue;
+		push(customer, &sofa_queue);
 	}
 	else {
 		standingWait(customer);
@@ -66,6 +66,11 @@ void registerWait(barber *barber) {
 		barber->cutting = 0;
 	}
 	else {
+		barber->waiting = 1;
+		barber->sleeping = 0;
+		barber->cutting = 0;
+		barber->accepting_payment = 0;
+
 		push(barber, &register_queue);
 	}
 }
@@ -83,6 +88,8 @@ void registerSignal() {
 	}
 	if(!isEmpty(&register_queue)) {
 		(register_queue.head)->accepting_payment = 1;
+		(register_queue.head)->waiting = 0
+		;
 		pop(&register_queue);
 	}
 

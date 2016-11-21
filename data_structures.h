@@ -15,6 +15,7 @@ struct barber {
 	int cutting;
 	int sleeping;
 	int accepting_payment;
+	int waiting;
 
 	customer *current_customer;
 };
@@ -40,18 +41,21 @@ barber_1.cutting = 0;
 barber_1.sleeping = 1;
 barber_1.accepting_payment = 0;
 barber_1.current_customer = 0;
+barber_1.waiting = 0;
 
 barber_2.name = "Barber 2";
 barber_2.cutting = 0;
 barber_2.sleeping = 1;
 barber_2.accepting_payment = 0;
 barber_2.current_customer = 0;
+barber_2.waiting = 0;
 
 barber_3.name = "Barber 3";
 barber_3.cutting = 0;
 barber_3.sleeping = 1;
 barber_3.accepting_payment = 0;
 barber_3.current_customer = 0;
+barber_3.waiting = 0;
 
 struct barbers_array[3] = {barber_1, barber_2, barber_3};
 
