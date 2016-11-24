@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "customer_handlers.h"
-#include "data_structures.h"
-#include "semaphores.h"
+#include "util.h"
 
 void handleNewMinute();
 
@@ -25,33 +23,11 @@ int main(int argc, char *argv[]) {
 	void *barber_2 = barbers_array[1];
 	void *barber_3 = barbers_array[2];
 
-	pthread_attr_t attr;
-
-	if(pthread_attr_init(pthread_attr_t &attr) < 0) {
-		perror("Error initializing threads");
-		exit(1);
-	}
-	if(pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) < 0) {
-		perror("Error initializing threads");
-		exit(1);
-	}
-
-	if(pthread_create(&barber_1_thread, &attr, &baker_routine, barber_1) < 0) {
-		perror("Error creating thread");
-		exit(1);
-	}
-	if(pthread_create(&barber_2_thread, &attr, &baker_routine, barber_2) < 0) {
-		perror("Error creating thread");
-		exit(1);
-	}
-	if(pthread_create(&barber_3_thread, &attr, &baker_routine, barber_3) < 0) {
-		perror("Error creating thread");
-		exit(1);
-	}
-
 	while(COUNTER < time_limit) {
 		handleNewMinute();
 	}
+
+	printResults();
 
 	return 0;
 }
@@ -69,39 +45,46 @@ void handleNewMinute() {
 		chairWait(new_customer);
 	}
 
+	if(pthread_create(&barber_1_thread, &attr, &barberRoutine, barber_1) < 0) {
+		perror("Error creating thread");
+		exit(1);
+	}
+	if(pthread_create(&barber_2_thread, &attr, &barberRoutine, barber_2) < 0) {
+		perror("Error creating thread");
+		exit(1);
+	}
+	if(pthread_create(&barber_3_thread, &attr, &barberRoutine, barber_3) < 0) {
+		perror("Error creating thread");
+		exit(1);
+	}
+
+	if(pthread_join(&barber_1_thread, NULL) < 0) {
+		perror("Error joining thread");
+		exit(1);
+	}
+	if(pthread_join(&barber_2_thread, NULL) < 0) {
+		perror("Error joining thread");
+		exit(1);
+	}
+	if(pthread_join(&barber_3_thread, NULL) < 0) {
+		perror("Error joining thread");
+		exit(1);
+	}
+}
+
+void printResults() {
 	int i;
 	for(i = 0; i < 3; i++) {
-		if(barbers_array[i].cutting) {
-			barbers_array[i].cutting_time++;
-			
-			if(barbers_array[i].cutting_time >= 5) {
-				barbers_array[i].cutting = 0;
+		printf("%s ", barber[i]->name);
 
-				sleeping_barber = findSleepingBarber();
-				if(sleeping_barber) {
-					registerWait(sleeping_barber);
-
-					barbers_array[i].sleeping = 1;
-					barbers_array[i].cutting = 0;
-					barbers_array[i].waiting = 0;
-					barbers_array[i].accepting_payment = 0;
-				}
-				else {
-					registerWait(&barbers_array[i]);
-				}
-			}
-			else if(barbers_array[i].accepting_payment) {
-				barbers_array[i].accepting_time++;
-
-				if(barbers_array[i].accepting_time >= 2) {
-					barbers_array[i].cutting;
-					barbers_array[i].sleeping;
-					barbers_array[i].accepting_payment;
-					barbers_array[i].waiting;
-
-					registerSignal();
-				}
-			}
+		if(barber[i]->cutting) {
+			puts("is cutting");
+		}
+		else if(barber[i]->accepting payment) {
+			puts("is accepting payment");
+		}
+		else(barber[i]->sleeping) {
+			puts("is sleeping");
 		}
 	}
 }

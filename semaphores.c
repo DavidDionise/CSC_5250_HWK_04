@@ -18,7 +18,6 @@ void chairSignal() {
 		
 		sofaSignal();
 	}
-		
 	CHAR_SEM--;
 }
 
@@ -39,7 +38,6 @@ void sofaSignal() {
 
 		standingSignal();
 	}
-
 	SOFA_SEM--;
 }
 
@@ -92,6 +90,5 @@ void registerSignal() {
 		
 		pop(&register_queue);
 	}
-
 	REG_SEM++;
 }

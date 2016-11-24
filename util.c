@@ -36,7 +36,7 @@ void rejectCustomer(customer* customer) {
 	DROPPED_CUSTOMER_COUNT++;
 }
 
-barber* findSleepingBarber() {
+barber * findSleepingBarber() {
 	int i;
 	for(i = 0; i < 3; i++) {
 		if(barbers_array[i].sleeping) {
@@ -45,3 +45,45 @@ barber* findSleepingBarber() {
 	}
 	return 0;
 }
+
+void * barberRoutine(void *arg) {
+	barber *barber = (barber*)arg;
+
+	if(barber->cutting) {
+		barber->cutting_time++;
+
+		if(barber->cutting_time >= 5) {
+			barber *sleeping_barber = findSleepingBarber();
+
+			if(sleeping_barber) {
+				registerWait(sleeping_barber);
+
+				barber->cutting = 0;
+				barber->sleeping = 1;
+				barber->accepting_payment = 0;
+			}
+			chairSignal();
+		}
+	}
+	else if(barber->accepting_payment) {
+		barber->accepting_time++;
+
+		if(barber->accepting_time >= 2) {
+			barber->cutting = 0;
+			barber->sleeping = 1;
+			barber->accepting_payment = 0;
+		}
+		registerSignal();
+	}
+	return NULL;
+}
+
+
+
+
+
+
+
+
+
+

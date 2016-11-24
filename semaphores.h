@@ -2,7 +2,6 @@
 #define SEMAPHORES_H
 
 #include "data_structures.h"
-#include "customer_handlers.h"
 
 int COUNTER = 0;
 int DROPPED_CUSTOMER_COUNT = 0;
