@@ -1,6 +1,9 @@
 #ifndef SEMAPHORES_H
 #define SEMAPHORES_H
 
+#include <stdlib.h>
+
+#include "globals.h"
 #include "data_structures.h"
 #include "util.h"
 

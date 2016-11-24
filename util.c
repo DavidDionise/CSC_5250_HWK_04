@@ -1,4 +1,5 @@
 #include "util.h"
+#include "semaphores.h"
 
 void customer_push(customer *customer, customer_queue *queue) {
 	if(queue->head == 0) {
@@ -31,19 +32,17 @@ void barber_push(barber *barber, barber_queue *queue) {
 	}
 	else {
 		barber->next = queue->tail;
-		queue->tail->prev = barber;
 		queue->tail = barber;
 	}
 }
 
-void barber_pop(customer_queue *queue) {
+void barber_pop(barber_queue *queue) {
 	if(queue->head == queue->tail) {
 		queue->head = 0;
 		queue->tail = 0;
 	}
 	else {
 		barber *temp = queue->head;
-		queue->head = queue->head->prev;
 		queue->head->next = 0;
 	}
 }
@@ -80,13 +79,13 @@ barber * findSleepingBarber() {
 }
 
 void * barberRoutine(void *arg) {
-	barber *barber = (barber*)arg;
+	barber *barber = (struct barber*)arg;
 
 	if(barber->cutting) {
 		barber->cutting_time++;
 
 		if(barber->cutting_time >= 5) {
-			barber *sleeping_barber = findSleepingBarber();
+			struct barber *sleeping_barber = findSleepingBarber();
 
 			if(sleeping_barber) {
 				registerWait(sleeping_barber);

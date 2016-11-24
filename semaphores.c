@@ -11,6 +11,12 @@ void chairWait(customer *customer) {
 		sleeping_barber->cutting = 1;
 		sleeping_barber->sleeping = 0;
 		sleeping_barber->accepting_payment = 0;
+
+		if(customer->number == 0) {
+			CUSTOMERS_IN_SHOP++;
+			customer->number = CUSTOMERS_IN_SHOP;
+		}
+
 		sleeping_barber->current_customer = customer;
 	}
 	else {
@@ -29,6 +35,12 @@ void chairSignal() {
 void sofaWait(customer* customer) {
 	if(SOFA_SEM < 4) {
 		SOFA_SEM++;
+
+		if(customer->number == 0) {
+			CUSTOMERS_IN_SHOP++;
+			customer->number = CUSTOMERS_IN_SHOP;
+		}
+
 		customer_push(customer, &sofa_queue);
 	}
 	else {
@@ -49,6 +61,12 @@ void sofaSignal() {
 void standingWait(customer* customer) {
 	if(STANDING_SEM < 7) {
 		STANDING_SEM++;
+
+		if(customer->number == 0) {
+			CUSTOMERS_IN_SHOP++;
+			customer->number = CUSTOMERS_IN_SHOP;
+		}
+
 		customer_push(customer, &standing_queue);
 	}
 	else {
@@ -88,7 +106,7 @@ void registerSignal() {
 			break;
 		}
 	}
-	if(!customerQueueEmpty(&register_queue)) {
+	if(!barberQueueEmpty(&register_queue)) {
 		(register_queue.head)->accepting_payment = 1;
 		
 		barber_pop(&register_queue);

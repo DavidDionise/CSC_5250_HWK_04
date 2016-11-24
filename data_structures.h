@@ -2,6 +2,7 @@
 #define DATA_STRUCTURES_H
 
 typedef struct customer {
+	int number;
 	struct customer *next;
 	struct customer *prev;
 } customer;
@@ -15,6 +16,8 @@ typedef struct barber {
 	int cutting;
 	int sleeping;
 	int accepting_payment;
+
+	struct barber *next;
 
 	customer *current_customer;
 } barber;

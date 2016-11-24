@@ -1,6 +1,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <stdlib.h>
+
+#include "globals.h"
 #include "data_structures.h"
 
 void customer_push(customer *customer, customer_queue *queue);

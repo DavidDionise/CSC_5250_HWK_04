@@ -2,9 +2,15 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "globals.h"
+#include "data_structures.h"
 #include "util.h"
+#include "semaphores.h"
 
-void handleNewMinute();
+void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
+	pthread_t *barber_3_thread);
+
+void printResults(barber barbers_array[]);
 
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
@@ -17,10 +23,10 @@ int main(int argc, char *argv[]) {
 	struct barber barber_2;
 	struct barber barber_3;
 
-	struct queue chair_queue;
-	struct queue sofa_queue;
-	struct queue standing_queue;
-	struct queue register_queue;
+	struct customer_queue chair_queue;
+	struct customer_queue sofa_queue;
+	struct customer_queue standing_queue;
+	struct barber_queue register_queue;
 
 	// Initialize barbers
 	barber_1.name = "Barber 1";
@@ -58,71 +64,70 @@ int main(int argc, char *argv[]) {
 	pthread_t barber_2_thread;
 	pthread_t barber_3_thread;
 
-	void *barber_1 = barbers_array[0];
-	void *barber_2 = barbers_array[1];
-	void *barber_3 = barbers_array[2];
-
 	while(COUNTER < time_limit) {
-		handleNewMinute();
+		handleNewMinute(&barber_1_thread, &barber_2_thread, 
+			&barber_3_thread);
 	}
 
-	printResults();
+	printResults(barbers_array);
 
 	return 0;
 }
 
-void handleNewMinute() {
+void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
+	pthread_t *barber_3_thread) {
+
 	COUNTER++;
 	barber *sleeping_barber;
 
 	if(COUNTER % 3 == 0) {
 		customer *new_customer = malloc(sizeof(customer));
-		new_customer->cut_time = 0;
+		new_customer->number = 0;
 		new_customer->next = 0;
 		new_customer->prev = 0;
 
 		chairWait(new_customer);
 	}
 
-	if(pthread_create(&barber_1_thread, &attr, &barberRoutine, barber_1) < 0) {
+	if(pthread_create(barber_1_thread, NULL, &barberRoutine, (void*)&barbers_array[0]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
-	if(pthread_create(&barber_2_thread, &attr, &barberRoutine, barber_2) < 0) {
+	if(pthread_create(barber_2_thread, NULL, &barberRoutine, (void*)&barbers_array[1]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
-	if(pthread_create(&barber_3_thread, &attr, &barberRoutine, barber_3) < 0) {
+	if(pthread_create(barber_3_thread, NULL, &barberRoutine, (void*)&barbers_array[2]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
 
-	if(pthread_join(&barber_1_thread, NULL) < 0) {
+	if(pthread_join(*barber_1_thread, NULL) < 0) {
 		perror("Error joining thread");
 		exit(1);
 	}
-	if(pthread_join(&barber_2_thread, NULL) < 0) {
+	if(pthread_join(*barber_2_thread, NULL) < 0) {
 		perror("Error joining thread");
 		exit(1);
 	}
-	if(pthread_join(&barber_3_thread, NULL) < 0) {
+	if(pthread_join(*barber_3_thread, NULL) < 0) {
 		perror("Error joining thread");
 		exit(1);
 	}
 }
 
-void printResults() {
+void printResults(barber barbers_array[]) {
 	int i;
 	for(i = 0; i < 3; i++) {
-		printf("%s ", barber[i]->name);
+		printf("%s ", barbers_array[i].name);
 
-		if(barber[i]->cutting) {
+		if(barbers_array[i].cutting) {
 			puts("is cutting");
 		}
-		else if(barber[i]->accepting payment) {
+		else if(barbers_array[i].accepting_payment) {
 			puts("is accepting payment");
 		}
-		else(barber[i]->sleeping) {
+		else if(barbers_array[i].sleeping) {
 			puts("is sleeping");
 		}
 	}
