@@ -1,6 +1,6 @@
 #include "util.h"
 
-void push(customer *customer, queue *queue) {
+void customer_push(customer *customer, customer_queue *queue) {
 	if(queue->head == 0) {
 		queue->head = customer;
 		queue->tail = customer;
@@ -12,7 +12,7 @@ void push(customer *customer, queue *queue) {
 	}
 }
 
-void pop(queue *queue) {
+void customer_pop(customer_queue *queue) {
 	if(queue->head == queue->tail) {
 		queue->head = 0;
 		queue->tail = 0;
@@ -24,12 +24,45 @@ void pop(queue *queue) {
 	}
 }
 
-int isEmpty(queue *queue) {
+void barber_push(barber *barber, barber_queue *queue) {
+	if(queue->head == 0) {
+		queue->head = barber;
+		queue->tail = barber;
+	}
+	else {
+		barber->next = queue->tail;
+		queue->tail->prev = barber;
+		queue->tail = barber;
+	}
+}
+
+void barber_pop(customer_queue *queue) {
+	if(queue->head == queue->tail) {
+		queue->head = 0;
+		queue->tail = 0;
+	}
+	else {
+		barber *temp = queue->head;
+		queue->head = queue->head->prev;
+		queue->head->next = 0;
+	}
+}
+
+int customerQueueEmpty(customer_queue *queue) {
 	if(queue->head == 0)
 		return 1;
 
 	return 0;
 }
+
+int barberQueueEmpty(barber_queue *queue) {
+	if(queue->head == 0)
+		return 1;
+
+	return 0;
+
+}
+
 
 void rejectCustomer(customer* customer) {
 	free(customer);
@@ -74,6 +107,18 @@ void * barberRoutine(void *arg) {
 			barber->accepting_payment = 0;
 		}
 		registerSignal();
+	}
+	else if(barber->sleeping) {
+		if(!customerQueueEmpty(&sofa_queue)) {
+			barber->cutting = 1;
+			barber->sleeping = 0;
+			barber->accepting_payment = 0;
+
+			barber->current_customer = sofa_queue.tail;
+			customer_pop(&sofa_queue);
+			sofaSignal();
+		}	
+
 	}
 	return NULL;
 }

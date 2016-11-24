@@ -1,10 +1,17 @@
 
 #include "semaphores.h"
 
+
 void chairWait(customer *customer) {
-	if(CHAR_SEM < 3) {
-		CHAR_SEM++;
-		push(customer, &chair_queue);
+	if(CHAIR_SEM < 3) {
+		CHAIR_SEM++;
+
+		barber *sleeping_barber = findSleepingBarber();
+
+		sleeping_barber->cutting = 1;
+		sleeping_barber->sleeping = 0;
+		sleeping_barber->accepting_payment = 0;
+		sleeping_barber->current_customer = customer;
 	}
 	else {
 		sofaWait(customer);
@@ -12,19 +19,17 @@ void chairWait(customer *customer) {
 }
 
 void chairSignal() {
-	if(!isEmpty(&sofa_queue)) {
-		push(&(sofa_queue.head), &chair_queue);
-		pop(&chair_queue);
-		
-		sofaSignal();
+	if(!customerQueueEmpty(&sofa_queue)) {
+		chairWait(sofa_queue.tail);
+		customer_pop(&sofa_queue);
 	}
-	CHAR_SEM--;
+	CHAIR_SEM--;
 }
 
 void sofaWait(customer* customer) {
 	if(SOFA_SEM < 4) {
 		SOFA_SEM++;
-		push(customer, &sofa_queue);
+		customer_push(customer, &sofa_queue);
 	}
 	else {
 		standingWait(customer);
@@ -32,9 +37,9 @@ void sofaWait(customer* customer) {
 }
 
 void sofaSignal() {
-	if(!isEmpty(&standing_queue)) {
-		push(&(standing_queue.head), &sofa_queue);	
-		pop(&sofa_queue);
+	if(!customerQueueEmpty(&standing_queue)) {
+		customer_push(standing_queue.head, &sofa_queue);	
+		customer_pop(&sofa_queue);
 
 		standingSignal();
 	}
@@ -44,7 +49,7 @@ void sofaSignal() {
 void standingWait(customer* customer) {
 	if(STANDING_SEM < 7) {
 		STANDING_SEM++;
-		push(customer, &standing_queue);
+		customer_push(customer, &standing_queue);
 	}
 	else {
 		rejectCustomer(customer);
@@ -52,7 +57,7 @@ void standingWait(customer* customer) {
 }
 
 void standingSignal() {
-	pop(&standing_queue);
+	customer_pop(&standing_queue);
 	STANDING_SEM--;
 }
 
@@ -64,12 +69,11 @@ void registerWait(barber *barber) {
 		barber->cutting = 0;
 	}
 	else {
-		barber->waiting = 1;
 		barber->sleeping = 0;
 		barber->cutting = 0;
 		barber->accepting_payment = 0;
 
-		push(barber, &register_queue);
+		barber_push(barber, &register_queue);
 	}
 }
 
@@ -84,11 +88,10 @@ void registerSignal() {
 			break;
 		}
 	}
-	if(!isEmpty(&register_queue)) {
+	if(!customerQueueEmpty(&register_queue)) {
 		(register_queue.head)->accepting_payment = 1;
-		(register_queue.head)->waiting = 0;
 		
-		pop(&register_queue);
+		barber_pop(&register_queue);
 	}
 	REG_SEM++;
 }

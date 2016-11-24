@@ -1,0 +1,11 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
+
+int COUNTER = 0;
+int CUSTOMERS_IN_SHOP = 0;
+int SUCCESSFUL_CUSTOMER_COUNT = 0;
+int DROPPED_CUSTOMER_COUNT = 0;
+
+
+#endif
