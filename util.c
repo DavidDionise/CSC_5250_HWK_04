@@ -266,7 +266,10 @@ void registerSignal() {
 				barbers_array[i]->current_customer = sofa_queue.head;
 				customer_pop(&sofa_queue);
 			}
-			barbers_array[i]->status = SLEEPING;
+			else {
+				barbers_array[i]->status = SLEEPING;
+				CHAIR_SEM--;
+			}
 
 			break;
 		}
