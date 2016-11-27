@@ -83,23 +83,18 @@ void * barberRoutine(void *arg) {
 		barber->cutting_time++;
 
 		if(barber->cutting_time >= 5) {
+			barber->cutting_time = 0;
+
 			struct barber *sleeping_barber = findSleepingBarber();
 
 			if(sleeping_barber) {
-				barber->cutting = 0;
-				barber->sleeping = 1;
-				barber->accepting_payment = 0;
-
 				registerWait(sleeping_barber);
+				barber->sleeping = 1;
+				barber->cutting = 0;
 			}
 			else {
-				barber->cutting = 0;
-				barber->sleeping = 0;
-				barber->accepting_payment = 1;
-
 				registerWait(barber);
 			}
-			chairSignal();
 		}
 	}
 	else if(barber->accepting_payment) {
@@ -109,22 +104,45 @@ void * barberRoutine(void *arg) {
 			barber->cutting = 0;
 			barber->sleeping = 1;
 			barber->accepting_payment = 0;
+			barber->waiting = 0;
+
+			registerSignal();
+			chairSignal();
 		}
-		registerSignal();
 	}
 	else if(barber->sleeping) {
 		if(!customerQueueEmpty(&sofa_queue)) {
 			barber->cutting = 1;
 			barber->sleeping = 0;
 			barber->accepting_payment = 0;
+			barber->waiting = 0;
 
 			barber->current_customer = sofa_queue.tail;
 			customer_pop(&sofa_queue);
 			sofaSignal();
 		}	
-
 	}
 	return NULL;
+}
+
+void printResults() {
+	int i;
+	for(i = 0; i < 3; i++) {
+		printf("%s ", barbers_array[i]->name);
+
+		if(barbers_array[i]->cutting) {
+			puts("is cutting");
+		}
+		else if(barbers_array[i]->accepting_payment) {
+			puts("is accepting payment");
+		}
+		else if(barbers_array[i]->sleeping) {
+			puts("is sleeping");
+		}
+		else if(barbers_array[i]->waiting) {
+			puts("is waiting");
+		}
+	}
 }
 
 // *********** SEMAPHORE FUNCTION ************ //
@@ -138,6 +156,7 @@ void chairWait(customer *customer) {
 		sleeping_barber->cutting = 1;
 		sleeping_barber->sleeping = 0;
 		sleeping_barber->accepting_payment = 0;
+		sleeping_barber->waiting = 0;
 
 		if(customer->number == 0) {
 			CUSTOMERS_IN_SHOP++;
@@ -212,11 +231,13 @@ void registerWait(barber *barber) {
 		barber->accepting_payment = 1;
 		barber->sleeping = 0;
 		barber->cutting = 0;
+		barber->waiting = 0;
 	}
 	else {
 		barber->sleeping = 0;
 		barber->cutting = 0;
 		barber->accepting_payment = 0;
+		barber->waiting = 1;
 
 		barber_push(barber, &register_queue);
 	}
@@ -228,6 +249,7 @@ void registerSignal() {
 		if(barbers_array[i]->accepting_payment) {
 			barbers_array[i]->accepting_payment = 0;
 			barbers_array[i]->sleeping = 1;
+			barbers_array[i]->cutting = 0;
 			barbers_array[i]->cutting = 0;
 
 			break;

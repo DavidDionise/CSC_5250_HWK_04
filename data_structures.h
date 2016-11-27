@@ -16,6 +16,7 @@ typedef struct barber {
 	int cutting;
 	int sleeping;
 	int accepting_payment;
+	int waiting;
 
 	struct barber *next;
 
