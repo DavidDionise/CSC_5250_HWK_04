@@ -9,14 +9,9 @@ typedef struct customer {
 
 typedef struct barber {
 	char *name;
-
 	int cutting_time;
 	int accepting_time;
-
-	int cutting;
-	int sleeping;
-	int accepting_payment;
-	int waiting;
+	int status;
 
 	struct barber *next;
 
@@ -38,6 +33,7 @@ struct barber barber_1;
 struct barber barber_2;
 struct barber barber_3;
 
+struct customer_queue barber_chair_queue; 
 struct customer_queue sofa_queue;
 struct customer_queue standing_queue;
 struct barber_queue register_queue;
