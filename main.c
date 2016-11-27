@@ -26,28 +26,29 @@ int main(int argc, char *argv[]) {
 	struct barber_queue register_queue;
 
 	// Initialize barbers
+	puts("hit");
 	barber_1.name = "Barber 1";
 	barber_1.cutting = 0;
 	barber_1.sleeping = 1;
 	barber_1.accepting_payment = 0;
 	barber_1.current_customer = 0;
-
+puts("hit");
 	barber_2.name = "Barber 2";
 	barber_2.cutting = 0;
 	barber_2.sleeping = 1;
 	barber_2.accepting_payment = 0;
 	barber_2.current_customer = 0;
-
+puts("hit");
 	barber_3.name = "Barber 3";
 	barber_3.cutting = 0;
 	barber_3.sleeping = 1;
 	barber_3.accepting_payment = 0;
 	barber_3.current_customer = 0;
-
+puts("hit");
 	barbers_array[0] = &barber_1;
 	barbers_array[1] = &barber_2;
 	barbers_array[2] = &barber_3;
-
+puts("hit");
 	// Initialize queue's
 	chair_queue.head = 0;
 	chair_queue.tail = 0;
@@ -57,14 +58,14 @@ int main(int argc, char *argv[]) {
 	standing_queue.tail = 0;
 	register_queue.head = 0;
 	register_queue.tail = 0;
-
+puts("hit");
 	int time_limit = atoi(argv[1]);
-
+puts("hit");
 	// Initialze barber threads
 	pthread_t barber_1_thread;
 	pthread_t barber_2_thread;
 	pthread_t barber_3_thread;
-
+puts("hit");
 	while(COUNTER < time_limit) {
 		handleNewMinute(&barber_1_thread, &barber_2_thread, 
 			&barber_3_thread);
@@ -77,7 +78,7 @@ int main(int argc, char *argv[]) {
 
 void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 	pthread_t *barber_3_thread) {
-
+puts("hit");
 	COUNTER++;
 	barber *sleeping_barber;
 
@@ -89,7 +90,7 @@ void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 
 		chairWait(new_customer);
 	}
-
+puts("hit");
 	if(pthread_create(barber_1_thread, NULL, &barberRoutine, (void*)barbers_array[0]) < 0) {
 		perror("Error creating thread");
 		exit(1);
@@ -102,7 +103,7 @@ void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 		perror("Error creating thread");
 		exit(1);
 	}
-
+puts("hit");
 	if(pthread_join(*barber_1_thread, NULL) < 0) {
 		perror("Error joining thread");
 		exit(1);

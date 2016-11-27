@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "globals.h"
 #include "data_structures.h"
