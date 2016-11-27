@@ -1,8 +1,6 @@
 #include "util.h"
 
 void customer_push(customer *customer, customer_queue *queue) {
-	puts("d");
-
 	if(queue->head == 0) {
 		queue->head = customer;
 		queue->tail = customer;
@@ -12,8 +10,6 @@ void customer_push(customer *customer, customer_queue *queue) {
 		queue->tail->prev = customer;
 		queue->tail = customer;
 	}
-	puts("e");
-
 }
 
 void customer_pop(customer_queue *queue) {
@@ -170,7 +166,7 @@ void printResults() {
 // *********** SEMAPHORE FUNCTION ************ //
 
 void chairWait(customer *customer) {
-	if(CHAIR_SEM < 4) {
+	if(CHAIR_SEM < 3) {
 		CHAIR_SEM++;
 
 		barber *sleeping_barber = findSleepingBarber();
@@ -202,16 +198,13 @@ void chairSignal() {
 }
 
 void sofaWait(customer* customer) {
-	puts("a");
-	if(SOFA_SEM < 5) {
+	if(SOFA_SEM < 4) {
 		SOFA_SEM++;
-	puts("b");
 
 		if(customer->number == 0) {
 			CUSTOMERS_IN_SHOP++;
 			customer->number = CUSTOMERS_IN_SHOP;
 		}
-	puts("c");
 
 		customer_push(customer, &sofa_queue);
 	}
