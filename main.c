@@ -73,7 +73,6 @@ void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 		customer *new_customer = malloc(sizeof(customer));
 		new_customer->number = 0;
 		new_customer->next = 0;
-		new_customer->prev = 0;
 
 		chairWait(new_customer);
 	}

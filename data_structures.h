@@ -4,7 +4,6 @@
 typedef struct customer {
 	int number;
 	struct customer *next;
-	struct customer *prev;
 } customer;
 
 typedef struct barber {

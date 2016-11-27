@@ -6,21 +6,23 @@ void customer_push(customer *customer, customer_queue *queue) {
 		queue->tail = customer;
 	}
 	else {
-		customer->next = queue->tail;
-		queue->tail->prev = customer;
+		queue->tail->next = customer;
 		queue->tail = customer;
 	}
 }
 
 void customer_pop(customer_queue *queue) {
 	if(queue->head == queue->tail) {	
+		free(queue->head);
+		
 		queue->head = 0;
 		queue->tail = 0;
 	}
 	else {
 		customer *temp = queue->head;
-		queue->head = queue->head->prev;
-		queue->head->next = 0;
+		queue->head = queue->head->next;
+		
+		free(temp);
 	}
 }
 
@@ -30,7 +32,7 @@ void barber_push(barber *barber, barber_queue *queue) {
 		queue->tail = barber;
 	}
 	else {
-		barber->next = queue->tail;
+		queue->tail->next = barber;
 		queue->tail = barber;
 	}
 }
@@ -42,7 +44,8 @@ void barber_pop(barber_queue *queue) {
 	}
 	else {
 		barber *temp = queue->head;
-		queue->head->next = 0;
+		queue->head = queue->head->next;
+		temp->next = 0;
 	}
 }
 
