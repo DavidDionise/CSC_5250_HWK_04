@@ -77,7 +77,6 @@ barber * findSleepingBarber() {
 }
 
 void * barberRoutine(void *arg) {
-	puts("hit");
 	barber *barber = (struct barber*)arg;
 
 	if(barber->cutting) {
@@ -87,12 +86,18 @@ void * barberRoutine(void *arg) {
 			struct barber *sleeping_barber = findSleepingBarber();
 
 			if(sleeping_barber) {
-
-				registerWait(sleeping_barber);
-
 				barber->cutting = 0;
 				barber->sleeping = 1;
 				barber->accepting_payment = 0;
+
+				registerWait(sleeping_barber);
+			}
+			else {
+				barber->cutting = 0;
+				barber->sleeping = 0;
+				barber->accepting_payment = 1;
+
+				registerWait(barber);
 			}
 			chairSignal();
 		}
