@@ -2,15 +2,12 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "globals.h"
-#include "data_structures.h"
 #include "util.h"
-#include "semaphores.h"
 
 void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 	pthread_t *barber_3_thread);
 
-void printResults(barber barbers_array[]);
+void printResults();
 
 int main(int argc, char *argv[]) {
 	if(argc < 2) {
@@ -47,6 +44,10 @@ int main(int argc, char *argv[]) {
 	barber_3.accepting_payment = 0;
 	barber_3.current_customer = 0;
 
+	barbers_array[0] = &barber_1;
+	barbers_array[1] = &barber_2;
+	barbers_array[2] = &barber_3;
+
 	// Initialize queue's
 	chair_queue.head = 0;
 	chair_queue.tail = 0;
@@ -69,7 +70,7 @@ int main(int argc, char *argv[]) {
 			&barber_3_thread);
 	}
 
-	printResults(barbers_array);
+	printResults();
 
 	return 0;
 }
@@ -89,15 +90,15 @@ void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 		chairWait(new_customer);
 	}
 
-	if(pthread_create(barber_1_thread, NULL, &barberRoutine, (void*)&barbers_array[0]) < 0) {
+	if(pthread_create(barber_1_thread, NULL, &barberRoutine, (void*)barbers_array[0]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
-	if(pthread_create(barber_2_thread, NULL, &barberRoutine, (void*)&barbers_array[1]) < 0) {
+	if(pthread_create(barber_2_thread, NULL, &barberRoutine, (void*)barbers_array[1]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
-	if(pthread_create(barber_3_thread, NULL, &barberRoutine, (void*)&barbers_array[2]) < 0) {
+	if(pthread_create(barber_3_thread, NULL, &barberRoutine, (void*)barbers_array[2]) < 0) {
 		perror("Error creating thread");
 		exit(1);
 	}
@@ -116,18 +117,18 @@ void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 	}
 }
 
-void printResults(barber barbers_array[]) {
+void printResults() {
 	int i;
 	for(i = 0; i < 3; i++) {
-		printf("%s ", barbers_array[i].name);
+		printf("%s ", barbers_array[i]->name);
 
-		if(barbers_array[i].cutting) {
+		if(barbers_array[i]->cutting) {
 			puts("is cutting");
 		}
-		else if(barbers_array[i].accepting_payment) {
+		else if(barbers_array[i]->accepting_payment) {
 			puts("is accepting payment");
 		}
-		else if(barbers_array[i].sleeping) {
+		else if(barbers_array[i]->sleeping) {
 			puts("is sleeping");
 		}
 	}

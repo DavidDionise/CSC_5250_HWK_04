@@ -41,6 +41,6 @@ struct customer_queue sofa_queue;
 struct customer_queue standing_queue;
 struct barber_queue register_queue;
 
-barber barbers_array[3];
+barber* barbers_array[3];
 
 #endif

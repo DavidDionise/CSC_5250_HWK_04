@@ -26,4 +26,22 @@ int customerQueueEmpty(customer_queue *queue);
 
 void * barberRoutine(void *args);
 
+// ********* SEMAPHORE FUNCTOINS *********** //
+
+void chairWait(customer *customer);
+
+void chairSignal();
+
+void sofaWait(customer* customer);
+
+void sofaSignal();
+
+void standingWait(customer* customer);
+
+void standingSignal();
+
+void registerWait(barber *barber);
+
+void registerSignal();
+
 #endif
