@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Initialize barbers
-	barber_1.name = "Barber 1";
+	barber_1.name = "barbers 1";
 	barber_1.status = SLEEPING;
 	barber_1.current_customer = 0;
 	barber_1.cutting_time = 0;
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 void handleNewMinute(pthread_t *barber_1_thread, pthread_t *barber_2_thread,
 	pthread_t *barber_3_thread) {
 
-	if(COUNTER % 1 == 0) {
+	if(COUNTER % 3 == 0) {
 		customer *new_customer = malloc(sizeof(customer));
 		new_customer->number = 0;
 		new_customer->next = 0;

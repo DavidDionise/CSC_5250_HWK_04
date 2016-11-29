@@ -13,16 +13,12 @@ void customer_push(customer *customer, customer_queue *queue) {
 
 void customer_pop(customer_queue *queue) {
 	if(queue->head == queue->tail) {	
-		free(queue->head);
-		
 		queue->head = 0;
 		queue->tail = 0;
 	}
 	else {
 		customer *temp = queue->head;
 		queue->head = queue->head->next;
-		
-		free(temp);
 	}
 }
 
@@ -85,7 +81,7 @@ void * barberRoutine(void *arg) {
 	if(barber->status == CUTTING) {
 		barber->cutting_time++;
 
-		if(barber->cutting_time > 5) {
+		if(barber->cutting_time >= 5) {
 			barber->cutting_time = 0;
 
 			struct barber *sleeping_barber = findSleepingBarber();
@@ -94,6 +90,7 @@ void * barberRoutine(void *arg) {
 				registerWait(sleeping_barber);
 
 				barber->status = SLEEPING;
+				barber->cutting_time = 0;
 			}
 			else {
 				registerWait(barber);
@@ -103,22 +100,11 @@ void * barberRoutine(void *arg) {
 	else if(barber->status == ACCEPTING) {
 		barber->accepting_time++;
 
-		if(barber->accepting_time > 2) {
-			barber->accepting_time = 0;
-
+		if(barber->accepting_time >= 2) {
 			registerSignal();
-			chairSignal();
 		}
 	}
-	else if(barber->status == SLEEPING) {
-		if(!customerQueueEmpty(&sofa_queue)) {
-			barber->status = CUTTING;
-
-			barber->current_customer = sofa_queue.tail;
-			customer_pop(&sofa_queue);
-			sofaSignal();
-		}	
-	}
+	
 	return NULL;
 }
 
@@ -179,9 +165,8 @@ void chairWait(customer *customer) {
 		if(customer->number == 0) {
 			CUSTOMERS_IN_SHOP++;
 			customer->number = CUSTOMERS_IN_SHOP;
-			customer_push(customer, &barber_chair_queue);
 		}
-
+		customer_push(customer, &barber_chair_queue);
 		sleeping_barber->current_customer = customer;
 	}
 	else {
@@ -190,14 +175,18 @@ void chairWait(customer *customer) {
 }
 
 void chairSignal() {
-	if(!customerQueueEmpty(&sofa_queue)) {
-		customer_pop(&barber_chair_queue);
+	free(barber_chair_queue.head);
+	customer_pop(&barber_chair_queue);
 
-		chairWait(sofa_queue.head);
-		customer_pop(&sofa_queue);
-	}
 	CUSTOMERS_IN_SHOP--;
 	CHAIR_SEM--;
+
+	if(!customerQueueEmpty(&sofa_queue)) {
+		chairWait(sofa_queue.head);
+		customer_pop(&sofa_queue);
+
+		sofaSignal();
+	}
 }
 
 void sofaWait(customer* customer) {
@@ -250,12 +239,10 @@ void standingSignal() {
 void registerWait(barber *barber) {
 	if(REG_SEM < 1) {
 		REG_SEM++;
-
 		barber->status = ACCEPTING;
 	}
 	else {
 		barber->status = WAITING;
-
 		barber_push(barber, &register_queue);
 	}
 }
@@ -264,23 +251,17 @@ void registerSignal() {
 	int i;
 	for(i = 0; i < 3; i++) {
 		if(barbers_array[i]->status == ACCEPTING) {
-			if(!customerQueueEmpty(&sofa_queue)) {
-				barbers_array[i]->status = CUTTING;
-				barbers_array[i]->current_customer = sofa_queue.head;
-				customer_pop(&sofa_queue);
-			}
-			else {
-				barbers_array[i]->status = SLEEPING;
-				CHAIR_SEM--;
-			}
+			barbers_array[i]->status = SLEEPING;
+			barbers_array[i]->accepting_time = 0;
+
+			chairSignal();
 
 			break;
 		}
 	}
 	if(!barberQueueEmpty(&register_queue)) {
-		register_queue.head->status = ACCEPTING;
-		
 		barber_pop(&register_queue);
+		register_queue.head->status = ACCEPTING;
 	}
 	REG_SEM--;
 }

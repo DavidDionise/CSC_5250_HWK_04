@@ -1,3 +1,3 @@
 
 all:
-	gcc -g globals.c util.c main.c -pthread
+	gcc globals.c util.c main.c -o barber -pthread
